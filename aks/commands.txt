@@ -32,59 +32,59 @@ az version
 az login
 --
 Create a resource group
-az group create --name myResourceGroup --location westeurope
+az group create --name ResourceGroup1 --location westeurope
 --
 Create an Azure Container Registry
-az acr create --resource-group myResourceGroup --name shoppingacr --sku Basic
+az acr create --resource-group ResourceGroup1 --name paulofeijodevacr --sku Basic
 --
 Enable Admin Account for ACR Pull
-az acr update -n shoppingacr --admin-enabled true
+az acr update -n paulofeijodevacr --admin-enabled true
 --
 Log in to the container registry
-az acr login --name shoppingacr
+az acr login --name paulofeijodevacr
 Login Succeeded
 --
 Tag a container image
 
 get the login server address
-az acr list --resource-group myResourceGroup --query "[].{acrLoginServer:loginServer}" --output table
-shoppingacr.azurecr.io
+az acr list --resource-group ResourceGroup1 --query "[].{acrLoginServer:loginServer}" --output table
+paulofeijodevacr.azurecr.io
 --
 Tag your images
 
-docker tag shoppingapi:latest shoppingacr.azurecr.io/shoppingapi:v1
-docker tag shoppingclient:latest shoppingacr.azurecr.io/shoppingclient:v1
+docker tag shoppingapi:latest paulofeijodevacr.azurecr.io/shoppingapi:v1
+docker tag shoppingclient:latest paulofeijodevacr.azurecr.io/shoppingclient:v1
 
 Check
 docker images
 --
 Push images to registry
 
-docker push shoppingacr.azurecr.io/shoppingapi:v1
-docker push shoppingacr.azurecr.io/shoppingclient:v1
+docker push paulofeijodevacr.azurecr.io/shoppingapi:v1
+docker push paulofeijodevacr.azurecr.io/shoppingclient:v1
 --
 List images in registry
-az acr repository list --name shoppingacr --output table
+az acr repository list --name paulofeijodevacr --output table
 
 Result
 shoppingapi
 shoppingclient
 --
 See tags
-az acr repository show-tags --name shoppingacr --repository shoppingclient --output table
+az acr repository show-tags --name paulofeijodevacr --repository shoppingclient --output table
 
 Result
 v1
 --
 Create AKS cluster with attaching ACR
-az aks create --resource-group myResourceGroup --name myAKSCluster --node-count 1 --generate-ssh-keys --attach-acr shoppingacr
+az aks create --resource-group ResourceGroup1 --name AKSCluster1 --node-count 1 --generate-ssh-keys --attach-acr paulofeijodevacr
 
 --
 Install the Kubernetes CLI
 az aks install-cli
 --
 Connect to cluster using kubectl
-az aks get-credentials --resource-group myResourceGroup --name myAKSCluster
+az aks get-credentials --resource-group ResourceGroup1 --name AKSCluster1
 
 To verify;
 kubectl get nodes
@@ -103,4 +103,7 @@ kubectl apply -f .\aks\
 --
 Clean All AKS and Azure Resources
 
-az group delete --name myResourceGroup --yes --no-wait
+az group delete --name ResourceGroup1 --yes --no-wait
+
+-- Create a secret for ACR container
+kubectl create secret docker-registry acr-secret --docker-server=paulofeijodevacr.azurecr.io --docker-username=paulofeijodevacr --docker-password=7Fi+tVMAt8e6mdDWRss8iavHYf01eeWo --docker-email=paulofeijodev@outlook.com
